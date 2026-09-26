@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Web Image Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hiệu ứng Glassmorphism[cite: 1] */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-8 flex flex-col items-center">
+    
+    <h1 class="text-3xl font-bold mb-6 text-blue-400">Basic Web Image Editor</h1>
+
+    <div class="glass p-6 rounded-xl shadow-lg w-full max-w-4xl flex flex-col md:flex-row gap-6">
+        <!-- Khu vực hiển thị ảnh -->
+        <div class="flex-1 flex flex-col items-center border-2 border-dashed border-gray-600 p-4 rounded-lg">
+            <input type="file" id="upload" accept="image/jpeg, image/png" class="mb-4">
+            <img id="mainImage" class="max-w-full h-auto rounded shadow-md hidden" />
+        </div>
+
+        <!-- Bảng điều khiển công cụ -->
+        <div class="w-full md:w-64 flex flex-col gap-3">
+            <h3 class="text-lg font-semibold border-b border-gray-600 pb-2">Filtering</h3>
+            <button onclick="applyAction('grayscale')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Grayscale</button>
+            <button onclick="applyAction('blur')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Gaussian Blur</button>
+            <button onclick="applyAction('brightness')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Tăng sáng</button>
+            <button onclick="applyAction('sharpen')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Làm sắc nét</button>
+            <button onclick="applyAction('edge_detection')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Tìm góc cạnh</button>
+
+            <h3 class="text-lg font-semibold border-b border-gray-600 pb-2 mt-2">Transforming</h3>
+            <button onclick="applyAction('rotate')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Xoay 90 độ</button>
+            <button onclick="applyAction('flip')" class="bg-gray-800 hover:bg-gray-700 p-2 rounded">Lật ngang</button>
+
+            <h3 class="text-lg font-semibold border-b border-gray-600 pb-2 mt-2">Quản lý</h3>
+            <div class="flex gap-2">
+                <button onclick="undo()" class="flex-1 bg-yellow-600 hover:bg-yellow-500 p-2 rounded">Undo</button>
+                <button onclick="redo()" class="flex-1 bg-green-600 hover:bg-green-500 p-2 rounded">Redo</button>
+            </div>
+            <!-- Nút so sánh giữ chuột -->
+            <button id="compareBtn" class="bg-purple-600 hover:bg-purple-500 p-2 rounded cursor-pointer">Giữ để so sánh ảnh gốc</button>
+            <button onclick="downloadImage()" class="bg-blue-600 hover:bg-blue-500 p-2 rounded mt-2">Tải ảnh về máy</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
