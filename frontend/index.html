@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Image Editor - Workspace</title>
+    <!-- Fallback to CDN to ensure UI loads even if CLI fails temporarily -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { gray: { 750: '#2d3748' } } } }
+        }
+    </script>
+    <style>
+        .glass-panel { background-color: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .tool-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #4b5563; outline: none; }
+        .tool-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; }
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-gray-200 h-screen flex flex-col overflow-hidden">
+    
+    <!-- Header -->
+    <header class="glass-panel h-14 flex items-center justify-between px-6 z-20 shadow-md">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <h1 class="font-bold text-lg tracking-wide text-gray-100">ImageEditor</h1>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <button class="px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors" title="Undo (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors" title="Redo (Ctrl+Y)">
+                <i class="fas fa-redo"></i>
+            </button>
+            <div class="w-px h-5 bg-gray-700 mx-2"></div>
+            <button class="px-4 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white shadow transition-colors flex items-center">
+                <i class="fas fa-download mr-2"></i> Tải xuống
+            </button>
+            <div class="w-px h-5 bg-gray-700 mx-2"></div>
+            <!-- User Menu -->
+            <a href="pages/profile.html" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:ring-2 ring-blue-500 transition-all ml-2 cursor-pointer">
+                <i class="fas fa-user text-sm"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Canvas Area (Left) -->
+        <section class="flex-1 bg-gray-950 relative flex flex-col">
+            <!-- Top Toolbar inside canvas -->
+            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 glass-panel px-4 py-2 rounded-full flex space-x-4 z-10 shadow-xl">
+                <button class="text-gray-400 hover:text-blue-400 transition-colors text-sm font-medium flex items-center">
+                    <i class="fas fa-search-plus mr-1"></i> Zoom
+                </button>
+                <div class="w-px h-4 bg-gray-700 my-auto"></div>
+                <button class="text-gray-400 hover:text-blue-400 transition-colors text-sm font-medium flex items-center" id="btn-compare" title="Nhấn giữ để xem ảnh gốc">
+                    <i class="fas fa-columns mr-1"></i> So sánh
+                </button>
+            </div>
+
+            <!-- Image Container (Empty State initially) -->
+            <div class="flex-1 p-8 flex items-center justify-center overflow-auto" id="canvas-container">
+                <!-- Dropzone UI -->
+                <div class="w-full max-w-lg border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 hover:bg-gray-900/50 transition-all cursor-pointer group">
+                    <div class="w-20 h-20 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-200 mb-2">Tải ảnh lên để bắt đầu</h3>
+                    <p class="text-sm text-gray-500 mb-6">Hỗ trợ JPG, JPEG, PNG</p>
+                    <button class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium shadow transition-colors">
+                        Chọn tệp từ máy tính
+                    </button>
+                </div>
+                
+                <!-- Mockup of an uploaded image (Hidden by default, shown for UI completeness) -->
+                <div class="hidden relative shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80" alt="Workspace Image" class="max-w-full max-h-[80vh] rounded object-contain">
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar Tools (Right) -->
+        <aside class="w-80 glass-panel border-l border-gray-800 flex flex-col z-20">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-800 text-sm font-medium">
+                <button class="flex-1 py-3 text-blue-400 border-b-2 border-blue-500">
+                    <i class="fas fa-sliders-h mr-2"></i>Filters
+                </button>
+                <button class="flex-1 py-3 text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+                    <i class="fas fa-crop-alt mr-2"></i>Transform
+                </button>
+            </div>
+
+            <!-- Scrollable Tools Content -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-8">
+                
+                <!-- Basic Adjustments Section -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Điều chỉnh cơ bản</h4>
+                    
+                    <!-- Brightness -->
+                    <div class="mb-5">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-300">Độ sáng (Brightness)</span>
+                            <span class="text-gray-400 text-xs">0</span>
+                        </div>
+                        <input type="range" min="-100" max="100" value="0" class="tool-slider">
+                    </div>
+                    
+                    <!-- Contrast -->
+                    <div class="mb-5">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-300">Độ tương phản</span>
+                            <span class="text-gray-400 text-xs">0</span>
+                        </div>
+                        <input type="range" min="-100" max="100" value="0" class="tool-slider">
+                    </div>
+
+                    <!-- Blur -->
+                    <div class="mb-5">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-300">Làm mờ (Gaussian)</span>
+                            <span class="text-gray-400 text-xs">0px</span>
+                        </div>
+                        <input type="range" min="0" max="20" value="0" class="tool-slider">
+                    </div>
+                </div>
+
+                <!-- Instant Filters Section -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Hiệu ứng nhanh</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16">
+                            <i class="fas fa-adjust mb-1 text-gray-400"></i>
+                            Grayscale
+                        </button>
+                        <button class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16">
+                            <i class="fas fa-magic mb-1 text-gray-400"></i>
+                            Sharpen
+                        </button>
+                        <button class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16 col-span-2">
+                            <i class="fas fa-draw-polygon mb-1 text-gray-400"></i>
+                            Edge Detection
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transforming (Hidden initially in this view, shown for structural purposes) -->
+                <div class="pt-4 border-t border-gray-800 opacity-50">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Biến đổi (Transform)</h4>
+                    <div class="grid grid-cols-4 gap-2 mb-4">
+                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Xoay trái"><i class="fas fa-undo-alt"></i></button>
+                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Xoay phải"><i class="fas fa-redo-alt"></i></button>
+                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Lật ngang"><i class="fas fa-arrows-alt-h"></i></button>
+                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Lật dọc"><i class="fas fa-arrows-alt-v"></i></button>
+                    </div>
+                    <button class="w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex items-center justify-center">
+                        <i class="fas fa-crop mr-2"></i> Cắt ảnh (Crop)
+                    </button>
+                </div>
+
+            </div>
+            
+            <!-- Bottom Apply Button -->
+            <div class="p-4 border-t border-gray-800">
+                <button class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium text-white shadow-lg transition-colors">
+                    Áp dụng thay đổi
+                </button>
+            </div>
+        </aside>
+    </main>
+</body>
+</html>
