@@ -4,13 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Image Editor - Workspace</title>
-    <!-- Fallback to CDN to ensure UI loads even if CLI fails temporarily -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { gray: { 750: '#2d3748' } } } }
-        }
-    </script>
+    <link rel="stylesheet" href="./assets/css/style.css">
     <style>
         .glass-panel { background-color: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .tool-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #4b5563; outline: none; }
@@ -35,14 +29,14 @@
         </div>
         
         <div class="flex items-center space-x-2">
-            <button class="px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors" title="Undo (Ctrl+Z)">
+            <button id="btn-undo" class="px-3 py-1.5 rounded-lg text-sm text-gray-400 transition-colors opacity-50 cursor-not-allowed" title="Undo (Ctrl+Z)" disabled>
                 <i class="fas fa-undo"></i>
             </button>
-            <button class="px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors" title="Redo (Ctrl+Y)">
+            <button id="btn-redo" class="px-3 py-1.5 rounded-lg text-sm text-gray-400 transition-colors opacity-50 cursor-not-allowed" title="Redo (Ctrl+Y)" disabled>
                 <i class="fas fa-redo"></i>
             </button>
             <div class="w-px h-5 bg-gray-700 mx-2"></div>
-            <button class="px-4 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white shadow transition-colors flex items-center">
+            <button id="btn-download" class="px-4 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white shadow transition-colors flex items-center">
                 <i class="fas fa-download mr-2"></i> Tải xuống
             </button>
             <div class="w-px h-5 bg-gray-700 mx-2"></div>
@@ -72,7 +66,8 @@
             <!-- Image Container (Empty State initially) -->
             <div class="flex-1 p-8 flex items-center justify-center overflow-auto" id="canvas-container">
                 <!-- Dropzone UI -->
-                <div class="w-full max-w-lg border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 hover:bg-gray-900/50 transition-all cursor-pointer group">
+                <div id="upload-dropzone" class="w-full max-w-lg border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center hover:border-blue-500 hover:bg-gray-900/50 transition-all cursor-pointer group">
+                    <input type="file" id="file-upload-input" class="hidden" accept="image/png, image/jpeg, image/jpg">
                     <div class="w-20 h-20 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <i class="fas fa-cloud-upload-alt text-3xl text-blue-500"></i>
                     </div>
@@ -84,92 +79,127 @@
                 </div>
                 
                 <!-- Mockup of an uploaded image (Hidden by default, shown for UI completeness) -->
-                <div class="hidden relative shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80" alt="Workspace Image" class="max-w-full max-h-[80vh] rounded object-contain">
+                <div id="image-preview-container" class="hidden relative shadow-2xl">
+                    <img id="image-preview" src="" alt="Workspace Image" class="max-w-full max-h-[80vh] rounded object-contain">
                 </div>
             </div>
         </section>
 
         <!-- Sidebar Tools (Right) -->
         <aside class="w-80 glass-panel border-l border-gray-800 flex flex-col z-20">
-            <!-- Tabs -->
+            <!-- Tabs Navigation -->
             <div class="flex border-b border-gray-800 text-sm font-medium">
-                <button class="flex-1 py-3 text-blue-400 border-b-2 border-blue-500">
+                <button id="btn-tab-filters" class="flex-1 py-3 text-blue-400 border-b-2 border-blue-500 transition-colors">
                     <i class="fas fa-sliders-h mr-2"></i>Filters
                 </button>
-                <button class="flex-1 py-3 text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+                <button id="btn-tab-transform" class="flex-1 py-3 text-gray-400 border-b-2 border-transparent hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
                     <i class="fas fa-crop-alt mr-2"></i>Transform
                 </button>
             </div>
 
             <!-- Scrollable Tools Content -->
-            <div class="flex-1 overflow-y-auto p-5 space-y-8">
+            <div class="flex-1 overflow-y-auto">
                 
-                <!-- Basic Adjustments Section -->
-                <div>
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Điều chỉnh cơ bản</h4>
+                <!-- Filters Section -->
+                <div id="tab-filters" class="p-5 space-y-8">
+                    <!-- Basic Adjustments Section -->
+                    <div>
+                        <!-- Brightness -->
+                        <div class="mb-5">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-300">Độ sáng (Brightness)</span>
+                                <span id="val-brightness" class="text-gray-400 text-xs">0</span>
+                            </div>
+                            <input id="slider-brightness" type="range" min="-100" max="100" value="0" class="tool-slider">
+                        </div>
+                        
+                        <!-- Contrast -->
+                        <div class="mb-5">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-300">Độ tương phản</span>
+                                <span id="val-contrast" class="text-gray-400 text-xs">0</span>
+                            </div>
+                            <input id="slider-contrast" type="range" min="-100" max="100" value="0" class="tool-slider">
+                        </div>
+
+                        <!-- Blur -->
+                        <div class="mb-5">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-300">Làm mờ (Gaussian)</span>
+                                <span id="val-blur" class="text-gray-400 text-xs">0px</span>
+                            </div>
+                            <input id="slider-blur" type="range" min="0" max="20" value="0" class="tool-slider">
+                        </div>
+                    </div>
+
+                    <!-- Instant Filters Section -->
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Hiệu ứng nhanh</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="btn-filter-grayscale" class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16">
+                                <i class="fas fa-adjust mb-1 text-gray-400 transition-colors"></i>
+                                Grayscale
+                            </button>
+                            <button id="btn-filter-sharpen" class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16">
+                                <i class="fas fa-magic mb-1 text-gray-400 transition-colors"></i>
+                                Sharpen
+                            </button>
+                            <button id="btn-filter-edge" class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16 col-span-2">
+                                <i class="fas fa-draw-polygon mb-1 text-gray-400 transition-colors"></i>
+                                Edge Detection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transform Section -->
+                <div id="tab-transform" class="p-5 space-y-6 hidden">
                     
-                    <!-- Brightness -->
-                    <div class="mb-5">
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-gray-300">Độ sáng (Brightness)</span>
-                            <span class="text-gray-400 text-xs">0</span>
+                        <!-- Rotate & Flip -->
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Xoay & Lật</h4>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button id="btn-rotate-left" class="bg-gray-800 p-2.5 rounded hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center justify-center transition-colors" title="Xoay trái 90°"><i class="fas fa-undo-alt"></i></button>
+                                <button id="btn-rotate-right" class="bg-gray-800 p-2.5 rounded hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center justify-center transition-colors" title="Xoay phải 90°"><i class="fas fa-redo-alt"></i></button>
+                                <button id="btn-flip-h" class="bg-gray-800 p-2.5 rounded hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center justify-center transition-colors" title="Lật ngang"><i class="fas fa-arrows-alt-h"></i></button>
+                                <button id="btn-flip-v" class="bg-gray-800 p-2.5 rounded hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center justify-center transition-colors" title="Lật dọc"><i class="fas fa-arrows-alt-v"></i></button>
+                            </div>
                         </div>
-                        <input type="range" min="-100" max="100" value="0" class="tool-slider">
-                    </div>
-                    
-                    <!-- Contrast -->
-                    <div class="mb-5">
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-gray-300">Độ tương phản</span>
-                            <span class="text-gray-400 text-xs">0</span>
+
+                        <!-- Crop -->
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Cắt ảnh (Crop)</h4>
+                            <div class="grid grid-cols-3 gap-2 mb-2">
+                                <button id="btn-crop-free" class="btn-crop bg-blue-600/20 text-blue-400 border border-blue-500/50 py-1.5 rounded text-xs font-medium">Free</button>
+                                <button id="btn-crop-1-1" class="btn-crop bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 py-1.5 rounded text-xs font-medium">1:1</button>
+                                <button id="btn-crop-16-9" class="btn-crop bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 py-1.5 rounded text-xs font-medium">16:9</button>
+                            </div>
+                            <button id="btn-apply-crop" class="w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex items-center justify-center">
+                                <i class="fas fa-crop mr-2"></i> Áp dụng Cắt
+                            </button>
                         </div>
-                        <input type="range" min="-100" max="100" value="0" class="tool-slider">
-                    </div>
 
-                    <!-- Blur -->
-                    <div class="mb-5">
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-gray-300">Làm mờ (Gaussian)</span>
-                            <span class="text-gray-400 text-xs">0px</span>
+                        <!-- Resize -->
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Kích thước (Resize)</h4>
+                            <div class="flex items-center space-x-2 mb-3">
+                                <div class="flex-1">
+                                    <label class="block text-xs text-gray-400 mb-1">Rộng (px)</label>
+                                    <input id="input-resize-w" type="number" min="1" class="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-blue-500" value="1920">
+                                </div>
+                                <div class="flex items-center justify-center pt-5 text-gray-500">
+                                    <button id="btn-resize-lock" class="hover:text-gray-300 transition-colors text-blue-400"><i class="fas fa-link" title="Giữ nguyên tỉ lệ"></i></button>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs text-gray-400 mb-1">Cao (px)</label>
+                                    <input id="input-resize-h" type="number" min="1" class="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-blue-500" value="1080">
+                                </div>
+                            </div>
+                            <button id="btn-apply-resize" class="w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex items-center justify-center">
+                                <i class="fas fa-compress-arrows-alt mr-2"></i> Đổi kích thước
+                            </button>
                         </div>
-                        <input type="range" min="0" max="20" value="0" class="tool-slider">
-                    </div>
                 </div>
-
-                <!-- Instant Filters Section -->
-                <div>
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Hiệu ứng nhanh</h4>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16">
-                            <i class="fas fa-adjust mb-1 text-gray-400"></i>
-                            Grayscale
-                        </button>
-                        <button class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16">
-                            <i class="fas fa-magic mb-1 text-gray-400"></i>
-                            Sharpen
-                        </button>
-                        <button class="py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex flex-col items-center justify-center h-16 col-span-2">
-                            <i class="fas fa-draw-polygon mb-1 text-gray-400"></i>
-                            Edge Detection
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Transforming (Hidden initially in this view, shown for structural purposes) -->
-                <div class="pt-4 border-t border-gray-800 opacity-50">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Biến đổi (Transform)</h4>
-                    <div class="grid grid-cols-4 gap-2 mb-4">
-                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Xoay trái"><i class="fas fa-undo-alt"></i></button>
-                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Xoay phải"><i class="fas fa-redo-alt"></i></button>
-                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Lật ngang"><i class="fas fa-arrows-alt-h"></i></button>
-                        <button class="bg-gray-800 p-2 rounded hover:bg-gray-700 text-gray-400" title="Lật dọc"><i class="fas fa-arrows-alt-v"></i></button>
-                    </div>
-                    <button class="w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex items-center justify-center">
-                        <i class="fas fa-crop mr-2"></i> Cắt ảnh (Crop)
-                    </button>
-                </div>
-
             </div>
             
             <!-- Bottom Apply Button -->
@@ -180,5 +210,8 @@
             </div>
         </aside>
     </main>
+
+    <!-- JavaScript -->
+    <script src="./assets/js/main.js"></script>
 </body>
 </html>
