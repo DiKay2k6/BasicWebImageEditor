@@ -8,13 +8,15 @@
 
 ## Trạng thái hiện tại
 
-- Giai đoạn hiện tại: Giai đoạn 2
-- Trạng thái hiện tại: Hoàn thành (Hoàn tất toàn bộ Giai đoạn 2, chờ bắt đầu Giai đoạn 3)
-- Giai đoạn 1: Hoàn thành
-- Giai đoạn 2: Hoàn thành
-- Giai đoạn 3: Chưa bắt đầu
-- Giai đoạn 4: Chưa bắt đầu
-- Giai đoạn 5: Chưa bắt đầu
+- Giai đoạn hiện tại: Tích hợp Python/OpenCV vào Web thông qua Flask REST API (Kế hoạch Tuần 7–8 theo chỉ đạo mới của giảng viên: Thực hành xử lý ảnh bằng Python/OpenCV trước → Tích hợp các chức năng đã làm lên Web → Phát triển chức năng làm mờ khuôn mặt ở Tuần 9–10)
+- Trạng thái hiện tại: Hoàn thành toàn bộ 10 chức năng xử lý ảnh OpenCV (Grayscale, Gaussian Blur, Brightness, Contrast, Sharpen, Edge Detection, Crop, Resize, Rotate, Flip) trong `backend/processing.py` và kết nối lên giao diện Web qua Flask REST API (port mặc định `5055`). Đã loại bỏ thư mục bài học `image_processing/` khỏi project Web chính. Chờ xác nhận trước khi thực hiện bước tiếp theo.
+- Giai đoạn 1 (Frontend UI/UX): Hoàn thành
+- Giai đoạn 2 (Logic Frontend JS): Hoàn thành
+- Module xử lý ảnh OpenCV (`backend/processing.py`): Hoàn thành (đã chuyển các hàm OpenCV từ phần thực hành sang Backend độc lập)
+- Tích hợp Python/OpenCV lên Web bằng Flask (Tuần 7–8): Hoàn thành (đã tích hợp & kiểm thử đầy đủ: Grayscale, Blur, Brightness, Contrast, Sharpen, Edge Detection, Crop, Resize, Rotate, Flip)
+- Giai đoạn 3 (Phần MongoDB, Authentication & Lưu lịch sử): Chưa bắt đầu (ngoài phạm vi task hiện tại)
+- Chức năng Làm mờ khuôn mặt / Nhận diện khuôn mặt (Tuần 9–10): Chưa bắt đầu
+- Giai đoạn 5 (Docker, Docker Compose & Nginx): Chưa bắt đầu
 
 ### Quy tắc cập nhật trạng thái
 

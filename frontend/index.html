@@ -14,6 +14,71 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        /* Crop Overlay & Selection Box Styles */
+        #crop-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow: hidden;
+            cursor: crosshair;
+            z-index: 15;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        #crop-selection-box {
+            position: absolute;
+            border: 2px solid #38bdf8;
+            background-color: rgba(56, 189, 248, 0.08);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+            cursor: move;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+        #crop-selection-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px dashed rgba(255, 255, 255, 0.45);
+            pointer-events: none;
+        }
+        .crop-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #ffffff;
+            border: 2px solid #0284c7;
+            border-radius: 2px;
+            z-index: 20;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+        .crop-handle[data-handle="nw"] { top: -6px; left: -6px; cursor: nwse-resize; }
+        .crop-handle[data-handle="n"]  { top: -6px; left: calc(50% - 6px); cursor: ns-resize; }
+        .crop-handle[data-handle="ne"] { top: -6px; right: -6px; cursor: nesw-resize; }
+        .crop-handle[data-handle="e"]  { top: calc(50% - 6px); right: -6px; cursor: ew-resize; }
+        .crop-handle[data-handle="se"] { bottom: -6px; right: -6px; cursor: nwse-resize; }
+        .crop-handle[data-handle="s"]  { bottom: -6px; left: calc(50% - 6px); cursor: ns-resize; }
+        .crop-handle[data-handle="sw"] { bottom: -6px; left: -6px; cursor: nesw-resize; }
+        .crop-handle[data-handle="w"]  { top: calc(50% - 6px); left: -6px; cursor: ew-resize; }
+        #crop-size-badge {
+            position: absolute;
+            top: -26px;
+            left: 0;
+            background-color: rgba(2, 132, 199, 0.95);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+            z-index: 25;
+        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -73,14 +138,28 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-200 mb-2">Tải ảnh lên để bắt đầu</h3>
                     <p class="text-sm text-gray-500 mb-6">Hỗ trợ JPG, JPEG, PNG</p>
-                    <button class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium shadow transition-colors">
+                    <button type="button" id="btn-upload-select" class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium shadow transition-colors">
                         Chọn tệp từ máy tính
                     </button>
                 </div>
                 
                 <!-- Mockup of an uploaded image (Hidden by default, shown for UI completeness) -->
                 <div id="image-preview-container" class="hidden relative shadow-2xl">
-                    <img id="image-preview" src="" alt="Workspace Image" class="max-w-full max-h-[80vh] rounded object-contain">
+                    <img id="image-preview" src="" alt="Workspace Image" class="max-w-full max-h-[80vh] rounded object-contain block" draggable="false">
+                    <!-- Crop Overlay -->
+                    <div id="crop-overlay" class="hidden">
+                        <div id="crop-selection-box" class="hidden">
+                            <div id="crop-size-badge"></div>
+                            <div class="crop-handle" data-handle="nw"></div>
+                            <div class="crop-handle" data-handle="n"></div>
+                            <div class="crop-handle" data-handle="ne"></div>
+                            <div class="crop-handle" data-handle="e"></div>
+                            <div class="crop-handle" data-handle="se"></div>
+                            <div class="crop-handle" data-handle="s"></div>
+                            <div class="crop-handle" data-handle="sw"></div>
+                            <div class="crop-handle" data-handle="w"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -169,13 +248,12 @@
                         <!-- Crop -->
                         <div>
                             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Cắt ảnh (Crop)</h4>
-                            <div class="grid grid-cols-3 gap-2 mb-2">
-                                <button id="btn-crop-free" class="btn-crop bg-blue-600/20 text-blue-400 border border-blue-500/50 py-1.5 rounded text-xs font-medium">Free</button>
-                                <button id="btn-crop-1-1" class="btn-crop bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 py-1.5 rounded text-xs font-medium">1:1</button>
-                                <button id="btn-crop-16-9" class="btn-crop bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 py-1.5 rounded text-xs font-medium">16:9</button>
-                            </div>
-                            <button id="btn-apply-crop" class="w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex items-center justify-center">
-                                <i class="fas fa-crop mr-2"></i> Áp dụng Cắt
+                            <button id="btn-crop-toggle" class="w-full py-2 mb-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-300 transition-colors flex items-center justify-center font-medium">
+                                <i class="fas fa-crop-alt mr-2"></i> Chọn vùng cắt
+                            </button>
+                            <p id="crop-hint" class="hidden text-xs text-gray-400 mb-2">Kéo trong khung để di chuyển, kéo 8 điểm góc/cạnh để chỉnh kích thước, hoặc kéo ngoài khung để tạo vùng mới</p>
+                            <button id="btn-apply-crop" class="hidden w-full py-2 bg-blue-600 hover:bg-blue-500 border border-blue-500 rounded-lg text-sm text-white font-medium transition-colors flex items-center justify-center">
+                                <i class="fas fa-check mr-2"></i> Áp dụng cắt
                             </button>
                         </div>
 
@@ -204,14 +282,14 @@
             
             <!-- Bottom Apply Button -->
             <div class="p-4 border-t border-gray-800">
-                <button class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium text-white shadow-lg transition-colors">
+                <button id="btn-apply-changes" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium text-white shadow-lg transition-colors">
                     Áp dụng thay đổi
                 </button>
             </div>
         </aside>
     </main>
 
-    <!-- JavaScript -->
-    <script src="./assets/js/main.js"></script>
+    <!-- JavaScript (ES Modules) -->
+    <script type="module" src="./assets/js/main.js?v=6"></script>
 </body>
 </html>

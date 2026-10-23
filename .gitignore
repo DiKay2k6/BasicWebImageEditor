@@ -1,4 +1,6 @@
-
+.agent/
 plans/
 .DS_Store
 __MACOSX/
+.venv/
+__pycache__/
