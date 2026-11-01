@@ -1,0 +1,4 @@
+# Danh sách các thư viện cần thiết cho Backend Web Image Editor
+flask>=3.0.0
+opencv-python>=4.8.0
+numpy>=1.26.0

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Image Editor - Đăng ký</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center relative overflow-x-hidden">
+    <!-- Background Decor -->
+    <div
+        class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob">
+    </div>
+    <div
+        class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000">
+    </div>
+
+    <div class="glass-dark p-8 rounded-2xl shadow-2xl w-full max-w-md relative z-10">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
+                Tạo Tài Khoản</h1>
+            <p class="text-gray-400 mt-2">Bắt đầu hành trình sáng tạo của bạn</p>
+        </div>
+
+        <form class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Tên hiển thị</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input type="text"
+                        class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
+                        placeholder="Tên của bạn">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-gray-400"></i>
+                    </div>
+                    <input type="email"
+                        class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
+                        placeholder="your@email.com">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <input type="password"
+                        class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
+                        placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="button"
+                class="w-full py-3 mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-white shadow-lg transform hover:-translate-y-0.5 transition-all focus:ring-4 focus:ring-purple-500/50">
+                Đăng Ký
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <p class="text-gray-400">Đã có tài khoản? <a href="login.html"
+                    class="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Đăng nhập</a></p>
+        </div>
+    </div>
+</body>
+
+</html>
