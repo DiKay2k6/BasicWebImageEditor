@@ -59,7 +59,7 @@ export function syncFilterUIFromState() {
     }
     if (badgeFaces) {
         if ((filterState.faceBlur || filterState.faceDetectBox) && filterState.facesDetected >= 0) {
-            badgeFaces.textContent = `${filterState.facesDetected} mặt`;
+            badgeFaces.textContent = `${filterState.facesDetected} khuôn mặt`;
             badgeFaces.classList.remove('hidden');
         } else {
             badgeFaces.classList.add('hidden');
@@ -67,7 +67,7 @@ export function syncFilterUIFromState() {
     }
 }
 
-function bindFilterSlider(sliderId, labelId, stateKey, suffix = '') {
+function bindFilterSlider(sliderId, labelId, stateKey, suffix = '', shouldProcess = () => true) {
     const slider = document.getElementById(sliderId);
     const label = document.getElementById(labelId);
     if (!slider || !label) return;
@@ -80,7 +80,9 @@ function bindFilterSlider(sliderId, labelId, stateKey, suffix = '') {
     });
     slider.addEventListener('change', () => {
         commitStateChange();
-        processImageWithAPI();
+        if (shouldProcess()) {
+            processImageWithAPI();
+        }
     });
 }
 
@@ -104,7 +106,13 @@ export function initFilters() {
     bindFilterSlider('slider-brightness', 'val-brightness', 'brightness');
     bindFilterSlider('slider-contrast', 'val-contrast', 'contrast');
     bindFilterSlider('slider-blur', 'val-blur', 'blur', 'px');
-    bindFilterSlider('slider-face-blur', 'val-face-blur', 'faceBlurStrength', '%');
+    bindFilterSlider(
+        'slider-face-blur',
+        'val-face-blur',
+        'faceBlurStrength',
+        '%',
+        () => filterState.faceBlur
+    );
 
     bindFilterToggle('btn-filter-grayscale', 'grayscale');
     bindFilterToggle('btn-filter-sharpen', 'sharpen');

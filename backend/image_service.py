@@ -350,6 +350,17 @@ def _apply_pipeline_transforms(
     return result
 
 
+def _update_face_metadata(
+    metadata: Dict[str, Any] | None, faces: list[tuple[int, int, int, int]]
+) -> None:
+    """Cập nhật số lượng và danh sách tọa độ khuôn mặt vào metadata trả về."""
+    if metadata is not None:
+        metadata["faces_detected"] = len(faces)
+        metadata["faces"] = [
+            {"x": x, "y": y, "width": w, "height": h} for (x, y, w, h) in faces
+        ]
+
+
 def _execute_face_blur(
     image: np.ndarray, params: Dict[str, Any], faces: list | None = None
 ) -> Tuple[np.ndarray, list]:
@@ -360,7 +371,11 @@ def _execute_face_blur(
         1,
         100,
     )
-    blur_type = str(params.get("face_blur_type", params.get("blur_type", "gaussian"))).strip().lower()
+    blur_type = (
+        str(params.get("face_blur_type", params.get("blur_type", "gaussian")))
+        .strip()
+        .lower()
+    )
     if blur_type not in {"gaussian", "pixelate"}:
         blur_type = "gaussian"
 
@@ -375,7 +390,7 @@ def _execute_face_blur(
 
 
 def _execute_face_detect(
-    image: np.ndarray, params: Dict[str, Any], faces: list | None = None
+    image: np.ndarray, faces: list | None = None
 ) -> Tuple[np.ndarray, list]:
     """Kiểm tra và vẽ khung chữ nhật nhận diện khuôn mặt trực quan."""
     detected = faces if faces is not None else detect_faces(image)
@@ -386,8 +401,21 @@ def _execute_face_detect(
 def _apply_pipeline_filters(
     image: np.ndarray, params: Dict[str, Any], metadata: Dict[str, Any] | None = None
 ) -> np.ndarray:
-    """Thực thi tuần tự các bộ lọc màu sắc, độ nét và nhận diện/làm mờ khuôn mặt trong chế độ pipeline."""
+    """Thực thi tuần tự nhận diện/làm mờ khuôn mặt và các bộ lọc màu sắc trong chế độ pipeline."""
     result = image
+
+    has_face_blur = _parse_bool(params.get("face_blur", False))
+    has_face_box = _parse_bool(params.get("face_detect_box", False)) or _parse_bool(
+        params.get("face_box", False)
+    )
+    faces: list[tuple[int, int, int, int]] = []
+
+    # Phát hiện khuôn mặt trên ảnh gốc (sau biến đổi hình học, trước khi lọc màu/cạnh) để đạt độ chính xác cao nhất
+    if has_face_blur or has_face_box:
+        faces = detect_faces(result)
+        _update_face_metadata(metadata, faces)
+        if has_face_blur:
+            result, _ = _execute_face_blur(result, params, faces=faces)
 
     result = _execute_contrast(result, params)
     result = _execute_brightness(result, params.get("brightness", 0))
@@ -404,25 +432,9 @@ def _apply_pipeline_filters(
     if _parse_bool(params.get("edge_detection", False)):
         result = _execute_edge_detection(result, params)
 
-    # Xử lý nhận diện và làm mờ khuôn mặt (Tuần 9-10)
-    has_face_blur = _parse_bool(params.get("face_blur", False))
-    has_face_box = _parse_bool(params.get("face_detect_box", False)) or _parse_bool(
-        params.get("face_box", False)
-    )
-
-    if has_face_blur or has_face_box:
-        faces = detect_faces(result)
-        if metadata is not None:
-            metadata["faces_detected"] = len(faces)
-            metadata["faces"] = [
-                {"x": x, "y": y, "width": w, "height": h} for (x, y, w, h) in faces
-            ]
-
-        if has_face_blur:
-            result, _ = _execute_face_blur(result, params, faces=faces)
-
-        if has_face_box:
-            result, _ = _execute_face_detect(result, params, faces=faces)
+    # Vẽ khung nhận diện ở bước cuối cùng để khung và nhãn luôn sắc nét, nổi bật
+    if has_face_box:
+        result, _ = _execute_face_detect(result, faces=faces)
 
     return result
 
@@ -444,19 +456,13 @@ def process_image_operation_with_metadata(
     if operation == "face_blur":
         result, faces = _execute_face_blur(result, params)
         if _parse_bool(params.get("face_detect_box", False)):
-            result, _ = _execute_face_detect(result, params, faces=faces)
-        metadata["faces_detected"] = len(faces)
-        metadata["faces"] = [
-            {"x": x, "y": y, "width": w, "height": h} for (x, y, w, h) in faces
-        ]
+            result, _ = _execute_face_detect(result, faces=faces)
+        _update_face_metadata(metadata, faces)
         return result, metadata
 
     if operation == "face_detect":
-        result, faces = _execute_face_detect(result, params)
-        metadata["faces_detected"] = len(faces)
-        metadata["faces"] = [
-            {"x": x, "y": y, "width": w, "height": h} for (x, y, w, h) in faces
-        ]
+        result, faces = _execute_face_detect(result)
+        _update_face_metadata(metadata, faces)
         return result, metadata
 
     if operation == "grayscale":
