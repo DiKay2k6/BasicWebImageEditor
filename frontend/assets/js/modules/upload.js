@@ -7,6 +7,7 @@ import {
     resetStatesForNewImage
 } from './state.js';
 import { showNotification } from './notifications.js';
+import { validateImageFile } from './config.js';
 
 export function initUpload({ onNewImageLoaded }) {
     const dropzone = document.getElementById('upload-dropzone');
@@ -18,12 +19,9 @@ export function initUpload({ onNewImageLoaded }) {
     function handleFile(file) {
         if (!file) return;
 
-        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-        const ext = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : '';
-        const validExts = ['jpg', 'jpeg', 'png'];
-
-        if (!validTypes.includes(file.type) && !validExts.includes(ext)) {
-            showNotification('Lỗi: File không hợp lệ! Vui lòng chọn ảnh định dạng JPG, JPEG hoặc PNG.', 'error');
+        const validationError = validateImageFile(file);
+        if (validationError) {
+            showNotification(`Lỗi: ${validationError}`, 'error');
             return;
         }
 
@@ -39,6 +37,7 @@ export function initUpload({ onNewImageLoaded }) {
         uploadState.fileType = file.type;
         uploadState.previewUrl = URL.createObjectURL(file);
         uploadState.currentProcessedUrl = '';
+        uploadState.currentProcessedType = '';
 
         const tempImg = new Image();
         tempImg.onload = () => {
@@ -51,6 +50,14 @@ export function initUpload({ onNewImageLoaded }) {
             if (onNewImageLoaded) {
                 onNewImageLoaded(uploadState.originalWidth, uploadState.originalHeight);
             }
+        };
+        tempImg.onerror = () => {
+            if (uploadState.file !== file) return;
+            URL.revokeObjectURL(uploadState.previewUrl);
+            Object.assign(uploadState, { file: null, fileName: '', fileType: '', previewUrl: '' });
+            if (previewContainer) previewContainer.classList.add('hidden');
+            if (dropzone) dropzone.classList.remove('hidden');
+            showNotification('Không thể đọc file ảnh này. File có thể đã bị hỏng.', 'error');
         };
         tempImg.src = uploadState.previewUrl;
 

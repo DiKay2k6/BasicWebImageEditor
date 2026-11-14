@@ -97,17 +97,23 @@
             <button id="btn-undo" class="px-3 py-1.5 rounded-lg text-sm text-gray-400 transition-colors opacity-50 cursor-not-allowed" title="Undo (Ctrl+Z)" disabled>
                 <i class="fas fa-undo"></i>
             </button>
-            <button id="btn-redo" class="px-3 py-1.5 rounded-lg text-sm text-gray-400 transition-colors opacity-50 cursor-not-allowed" title="Redo (Ctrl+Y)" disabled>
+            <button id="btn-redo" class="px-3 py-1.5 rounded-lg text-sm text-gray-400 transition-colors opacity-50 cursor-not-allowed" title="Redo (Ctrl+Y / Ctrl+Shift+Z)" disabled>
                 <i class="fas fa-redo"></i>
             </button>
             <div class="w-px h-5 bg-gray-700 mx-2"></div>
+            <button id="btn-save-history" class="px-4 py-1.5 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 shadow transition-colors flex items-center" title="Lưu ảnh đã chỉnh sửa vào lịch sử (cần đăng nhập)">
+                <i class="fas fa-cloud-upload-alt mr-2"></i> Lưu
+            </button>
             <button id="btn-download" class="px-4 py-1.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white shadow transition-colors flex items-center">
                 <i class="fas fa-download mr-2"></i> Tải xuống
             </button>
             <div class="w-px h-5 bg-gray-700 mx-2"></div>
             <!-- User Menu -->
-            <a href="pages/profile.html" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:ring-2 ring-blue-500 transition-all ml-2 cursor-pointer">
-                <i class="fas fa-user text-sm"></i>
+            <a id="header-account" href="pages/login.html" class="flex items-center ml-2 group" title="Đăng nhập để lưu lịch sử chỉnh sửa">
+                <span id="header-account-name" class="hidden sm:inline max-w-[140px] truncate text-sm text-gray-300 group-hover:text-white mr-2 transition-colors">Đăng nhập</span>
+                <span id="header-account-avatar" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden text-xs font-bold text-white group-hover:ring-2 ring-blue-500 transition-all">
+                    <i class="fas fa-user text-sm"></i>
+                </span>
             </a>
         </div>
     </header>
@@ -331,6 +337,6 @@
     </main>
 
     <!-- JavaScript (ES Modules) -->
-    <script type="module" src="./assets/js/main.js?v=7"></script>
+    <script type="module" src="./assets/js/main.js?v=8"></script>
 </body>
 </html>

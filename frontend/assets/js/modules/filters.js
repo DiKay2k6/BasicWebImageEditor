@@ -72,13 +72,19 @@ function bindFilterSlider(sliderId, labelId, stateKey, suffix = '', shouldProces
     const label = document.getElementById(labelId);
     if (!slider || !label) return;
 
-    slider.addEventListener('mousedown', captureStateBeforeChange);
-    slider.addEventListener('touchstart', captureStateBeforeChange, { passive: true });
     slider.addEventListener('input', (e) => {
+        if (!uploadState.file) return;
+        // Ghi nhớ trạng thái ngay trước thay đổi đầu tiên (hỗ trợ cả kéo chuột, chạm và phím mũi tên)
+        captureStateBeforeChange();
         filterState[stateKey] = Number(e.target.value);
         label.textContent = `${e.target.value}${suffix}`;
     });
     slider.addEventListener('change', () => {
+        if (!uploadState.file) {
+            showNotification('Vui lòng tải ảnh lên trước khi điều chỉnh bộ lọc!', 'warning');
+            syncFilterUIFromState();
+            return;
+        }
         commitStateChange();
         if (shouldProcess()) {
             processImageWithAPI();
@@ -123,6 +129,10 @@ export function initFilters() {
     const selectFaceBlurType = document.getElementById('select-face-blur-type');
     if (selectFaceBlurType) {
         selectFaceBlurType.addEventListener('change', (e) => {
+            if (!uploadState.file) {
+                filterState.faceBlurType = e.target.value;
+                return;
+            }
             saveState();
             filterState.faceBlurType = e.target.value;
             if (filterState.faceBlur) {

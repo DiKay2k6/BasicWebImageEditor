@@ -3,19 +3,16 @@ from typing import Tuple
 import cv2
 import numpy as np
 
+from errors import ApiError
+
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 JPEG_MAGIC = b"\xff\xd8\xff"
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 
 
-class ImageProcessingError(Exception):
+class ImageProcessingError(ApiError):
     """Lỗi nghiệp vụ khi kiểm tra định dạng, giải mã/mã hóa hoặc xử lý ảnh."""
-
-    def __init__(self, message: str, status_code: int = 400) -> None:
-        super().__init__(message)
-        self.message = message
-        self.status_code = status_code
 
 
 def validate_and_decode_image(

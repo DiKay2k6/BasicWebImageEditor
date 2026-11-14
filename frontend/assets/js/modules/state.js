@@ -2,9 +2,7 @@
 // CENTRALIZED APPLICATION STATE
 // ==========================================
 
-export const API_BASE_URL = (
-    window.location.protocol.startsWith('http') && window.location.port === '5055'
-) ? '' : 'http://127.0.0.1:5055';
+export { API_BASE_URL } from './config.js';
 
 export const uploadState = {
     file: null,
@@ -12,6 +10,7 @@ export const uploadState = {
     fileType: '',
     previewUrl: '',
     currentProcessedUrl: '',
+    currentProcessedType: '',
     originalWidth: 1920,
     originalHeight: 1080,
     currentWidth: 1920,

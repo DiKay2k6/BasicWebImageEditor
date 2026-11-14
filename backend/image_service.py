@@ -58,6 +58,8 @@ __all__ = [
     "encode_image",
     "process_image_operation",
     "process_image_operation_with_metadata",
+    "describe_pipeline_edits",
+    "create_avatar_image",
 ]
 
 
@@ -278,27 +280,31 @@ def _execute_edge_detection(
     return out if out is not None else image
 
 
+def _load_transform_ops(params: Dict[str, Any]) -> list | None:
+    """Đọc danh sách thao tác biến đổi (transform_ops); trả về None nếu không được truyền."""
+    raw_ops = params.get("transform_ops")
+    if not raw_ops:
+        return None
+    try:
+        ops_list = json.loads(raw_ops) if isinstance(raw_ops, str) else raw_ops
+    except (ValueError, TypeError) as exc:
+        raise ImageProcessingError(
+            "Dữ liệu chuỗi thao tác biến đổi (transform_ops) không hợp lệ."
+        ) from exc
+
+    if not isinstance(ops_list, list):
+        raise ImageProcessingError("Tham số transform_ops phải là một danh sách.")
+    return ops_list
+
+
 def _apply_pipeline_transforms(
     image: np.ndarray, params: Dict[str, Any]
 ) -> np.ndarray:
     """Thực thi tuần tự chuỗi biến đổi hình học (Rotate, Flip, Crop, Resize) trong chế độ pipeline."""
     result = image
 
-    if "transform_ops" in params and params["transform_ops"]:
-        try:
-            ops_list = (
-                json.loads(params["transform_ops"])
-                if isinstance(params["transform_ops"], str)
-                else params["transform_ops"]
-            )
-        except (ValueError, TypeError) as exc:
-            raise ImageProcessingError(
-                "Dữ liệu chuỗi thao tác biến đổi (transform_ops) không hợp lệ."
-            ) from exc
-
-        if not isinstance(ops_list, list):
-            raise ImageProcessingError("Tham số transform_ops phải là một danh sách.")
-
+    ops_list = _load_transform_ops(params)
+    if ops_list is not None:
         for step in ops_list:
             if not isinstance(step, dict):
                 continue
@@ -510,6 +516,72 @@ def process_image_operation_with_metadata(
     result = _apply_pipeline_transforms(result, params)
     result = _apply_pipeline_filters(result, params, metadata=metadata)
     return result, metadata
+
+
+def create_avatar_image(image: np.ndarray, size: int) -> np.ndarray:
+    """Cắt vùng vuông ở giữa ảnh và thu nhỏ về size x size để làm ảnh đại diện."""
+    img_h, img_w = image.shape[:2]
+    side = min(img_w, img_h)
+    square = crop_image(
+        image, x=(img_w - side) // 2, y=(img_h - side) // 2, width=side, height=side
+    )
+    if square is None:
+        raise ImageProcessingError("Ảnh đại diện quá nhỏ (tối thiểu 4x4 px).")
+    return resize_image(square, size, size) if side > size else square
+
+
+_TRANSFORM_OP_KEYS = {
+    "rotate": ("angle",),
+    "flip": ("direction",),
+    "crop": ("x", "y", "width", "height", "ref_w", "ref_h"),
+    "resize": ("width", "height"),
+}
+
+
+def describe_pipeline_edits(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Tóm tắt các chỉnh sửa đã áp dụng (chỉ giá trị khác mặc định) để lưu làm metadata lịch sử.
+
+    Chỉ gọi sau khi pipeline đã xử lý thành công nên các tham số đều đã hợp lệ.
+    """
+    filters: Dict[str, Any] = {}
+    for key, min_val, max_val in (
+        ("brightness", -100, 100),
+        ("contrast", -100, 100),
+        ("blur", 0, 20),
+    ):
+        value = _parse_int(params.get(key, 0), key, min_val, max_val)
+        if value:
+            filters[key] = value
+
+    for key in ("grayscale", "sharpen", "edge_detection", "face_detect_box"):
+        if _parse_bool(params.get(key, False)):
+            filters[key] = True
+
+    if _parse_bool(params.get("face_blur", False)):
+        blur_type = str(params.get("face_blur_type", "gaussian")).strip().lower()
+        filters["face_blur"] = {
+            # Giống _execute_face_blur: kiểu không hợp lệ được xử lý như 'gaussian'
+            "type": blur_type if blur_type in {"gaussian", "pixelate"} else "gaussian",
+            "strength": _parse_int(
+                params.get("face_blur_strength", 30), "face_blur_strength", 1, 100
+            ),
+        }
+
+    transforms = []
+    for step in _load_transform_ops(params) or []:
+        step_type = str(step.get("type", "")).strip().lower() if isinstance(step, dict) else ""
+        if step_type in _TRANSFORM_OP_KEYS:
+            transforms.append(
+                {"type": step_type}
+                | {
+                    k: step[k]
+                    for k in _TRANSFORM_OP_KEYS[step_type]
+                    if isinstance(step.get(k), (int, float))
+                    or (isinstance(step.get(k), str) and len(step[k]) <= 20)
+                }
+            )
+
+    return {"filters": filters, "transforms": transforms}
 
 
 def process_image_operation(

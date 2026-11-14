@@ -22,80 +22,136 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="../index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Về Editor</a>
-                    <a href="login.html" class="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"><i class="fas fa-sign-out-alt mr-1"></i> Đăng xuất</a>
+                    <button type="button" id="btn-logout" class="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"><i class="fas fa-sign-out-alt mr-1"></i> Đăng xuất</button>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Background Decor -->
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full mix-blend-multiply filter blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-900/20 rounded-full mix-blend-multiply filter blur-3xl"></div>
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full mix-blend-multiply filter blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-900/20 rounded-full mix-blend-multiply filter blur-3xl pointer-events-none"></div>
 
-    <div class="max-w-4xl mx-auto px-4 py-12 relative z-10">
+    <!-- Loading state -->
+    <div id="profile-loading" class="max-w-4xl mx-auto px-4 py-24 text-center text-gray-400 relative z-10">
+        <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+        <p id="profile-loading-text">Đang tải hồ sơ...</p>
+    </div>
+
+    <div id="profile-content" class="hidden max-w-5xl mx-auto px-4 py-12 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Sidebar Profile -->
             <div class="col-span-1">
                 <div class="glass-dark rounded-2xl p-6 text-center shadow-xl">
                     <div class="relative w-32 h-32 mx-auto mb-4">
-                        <img src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=128" alt="Avatar" class="rounded-full shadow-lg border-4 border-gray-700">
-                        <button class="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg transition-colors">
+                        <img id="profile-avatar" src="" alt="Ảnh đại diện" class="hidden w-32 h-32 object-cover rounded-full shadow-lg border-4 border-gray-700">
+                        <div id="profile-avatar-fallback" class="w-32 h-32 rounded-full shadow-lg border-4 border-gray-700 bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-4xl font-bold text-white select-none">?</div>
+                        <input type="file" id="input-avatar" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                        <button type="button" id="btn-change-avatar" class="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg transition-colors" title="Đổi ảnh đại diện (JPG/PNG, tối đa 5MB)">
                             <i class="fas fa-camera"></i>
                         </button>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Người Dùng 1</h2>
-                    <p class="text-gray-400 text-sm mb-6">Thành viên từ Thg 9, 2026</p>
-                    
-                    <div class="flex flex-col space-y-2">
-                        <button class="w-full text-left px-4 py-2 rounded-lg bg-gray-800 text-white font-medium"><i class="fas fa-user mr-3"></i> Hồ sơ</button>
-                        <button class="w-full text-left px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition-colors"><i class="fas fa-history mr-3"></i> Lịch sử chỉnh sửa</button>
-                        <button class="w-full text-left px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition-colors"><i class="fas fa-cog mr-3"></i> Cài đặt</button>
+                    <h2 id="profile-name" class="text-xl font-bold text-white break-words"></h2>
+                    <p id="profile-member-since" class="text-gray-400 text-sm"></p>
+                    <p id="profile-edit-count" class="text-gray-500 text-xs mt-1 mb-6"></p>
+
+                    <div class="flex flex-col space-y-2" role="tablist">
+                        <button type="button" data-tab="profile" class="profile-tab w-full text-left px-4 py-2 rounded-lg transition-colors"><i class="fas fa-user mr-3"></i> Hồ sơ</button>
+                        <button type="button" data-tab="history" class="profile-tab w-full text-left px-4 py-2 rounded-lg transition-colors"><i class="fas fa-history mr-3"></i> Lịch sử chỉnh sửa</button>
+                        <button type="button" data-tab="settings" class="profile-tab w-full text-left px-4 py-2 rounded-lg transition-colors"><i class="fas fa-cog mr-3"></i> Cài đặt</button>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="col-span-1 md:col-span-2 space-y-6">
-                <!-- Update Info Form -->
-                <div class="glass-dark rounded-2xl p-8 shadow-xl">
-                    <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Thông Tin Cá Nhân</h3>
-                    <form class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Tên hiển thị</label>
-                                <input type="text" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white" value="Người Dùng 1">
+                <!-- Tab: Hồ sơ -->
+                <section id="panel-profile" class="profile-panel space-y-6">
+                    <div class="glass-dark rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Thông Tin Cá Nhân</h3>
+                        <form id="profile-form" class="space-y-6" novalidate>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="input-display-name" class="block text-sm font-medium text-gray-300 mb-2">Tên hiển thị</label>
+                                    <input id="input-display-name" type="text" required minlength="2" maxlength="50" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
+                                </div>
+                                <div>
+                                    <label for="input-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                                    <input id="input-email" type="email" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-400" disabled>
+                                    <p class="text-xs text-gray-500 mt-1">Không thể thay đổi email.</p>
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                                <input type="email" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-400" value="user@example.com" disabled>
-                                <p class="text-xs text-gray-500 mt-1">Không thể thay đổi email.</p>
+                                <div class="flex justify-between mb-2">
+                                    <label for="input-bio" class="block text-sm font-medium text-gray-300">Tiểu sử</label>
+                                    <span id="bio-counter" class="text-xs text-gray-500">0/300</span>
+                                </div>
+                                <textarea id="input-bio" maxlength="300" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white h-24 resize-none" placeholder="Viết gì đó về bạn..."></textarea>
                             </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Tiểu sử</label>
-                            <textarea class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white h-24 resize-none" placeholder="Viết gì đó về bạn..."></textarea>
-                        </div>
-                        <div class="flex justify-end">
-                            <button type="button" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-medium text-white shadow-lg transition-colors">
-                                Lưu Thay Đổi
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Recent Edits (Empty State) -->
-                <div class="glass-dark rounded-2xl p-8 shadow-xl">
-                    <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Lịch Sử Gần Đây</h3>
-                    <div class="text-center py-10">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 text-gray-500 mb-4">
-                            <i class="fas fa-images text-2xl"></i>
-                        </div>
-                        <p class="text-gray-400">Bạn chưa có lịch sử chỉnh sửa nào.</p>
-                        <a href="../index.html" class="inline-block mt-4 text-blue-400 hover:text-blue-300 font-medium">Bắt đầu chỉnh sửa ngay <i class="fas fa-arrow-right ml-1"></i></a>
+                            <p id="profile-message" class="hidden text-sm" role="alert"></p>
+                            <div class="flex justify-end">
+                                <button id="btn-save-profile" type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-medium text-white shadow-lg transition-colors">
+                                    Lưu Thay Đổi
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </div>
+
+                    <div class="glass-dark rounded-2xl p-8 shadow-xl">
+                        <div class="flex items-center justify-between mb-6 border-b border-gray-700 pb-2">
+                            <h3 class="text-xl font-bold text-white">Lịch Sử Gần Đây</h3>
+                            <button type="button" data-tab="history" class="profile-tab-link text-sm text-blue-400 hover:text-blue-300">Xem tất cả <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                        <div id="recent-history"></div>
+                    </div>
+                </section>
+
+                <!-- Tab: Lịch sử chỉnh sửa -->
+                <section id="panel-history" class="profile-panel hidden">
+                    <div class="glass-dark rounded-2xl p-8 shadow-xl">
+                        <div class="flex items-center justify-between mb-6 border-b border-gray-700 pb-2">
+                            <h3 class="text-xl font-bold text-white">Lịch Sử Chỉnh Sửa</h3>
+                            <span id="history-total" class="text-sm text-gray-400"></span>
+                        </div>
+                        <div id="history-list"></div>
+                        <div id="history-pagination" class="hidden flex items-center justify-between mt-6 text-sm">
+                            <button type="button" id="btn-history-prev" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"><i class="fas fa-chevron-left mr-1"></i> Trước</button>
+                            <span id="history-page-info" class="text-gray-400"></span>
+                            <button type="button" id="btn-history-next" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed">Sau <i class="fas fa-chevron-right ml-1"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tab: Cài đặt -->
+                <section id="panel-settings" class="profile-panel hidden">
+                    <div class="glass-dark rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Đổi Mật Khẩu</h3>
+                        <form id="password-form" class="space-y-5" novalidate>
+                            <div>
+                                <label for="input-current-password" class="block text-sm font-medium text-gray-300 mb-2">Mật khẩu hiện tại</label>
+                                <input id="input-current-password" type="password" autocomplete="current-password" required maxlength="128" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
+                            </div>
+                            <div>
+                                <label for="input-new-password" class="block text-sm font-medium text-gray-300 mb-2">Mật khẩu mới</label>
+                                <input id="input-new-password" type="password" autocomplete="new-password" required minlength="6" maxlength="128" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white" placeholder="Tối thiểu 6 ký tự">
+                            </div>
+                            <div>
+                                <label for="input-confirm-password" class="block text-sm font-medium text-gray-300 mb-2">Xác nhận mật khẩu mới</label>
+                                <input id="input-confirm-password" type="password" autocomplete="new-password" required maxlength="128" class="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
+                            </div>
+                            <p id="password-message" class="hidden text-sm" role="alert"></p>
+                            <div class="flex justify-end">
+                                <button id="btn-change-password" type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-medium text-white shadow-lg transition-colors">
+                                    Đổi Mật Khẩu
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
+
+    <script type="module" src="../assets/js/pages/profile.js"></script>
 </body>
 </html>

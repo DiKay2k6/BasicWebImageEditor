@@ -4,3 +4,6 @@ plans/
 __MACOSX/
 .venv/
 __pycache__/
+# Thư mục lưu file ảnh người dùng (ảnh đại diện, ảnh đã chỉnh sửa)
+backend/storage/
+.env

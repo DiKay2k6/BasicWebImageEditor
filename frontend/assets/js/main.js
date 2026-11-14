@@ -4,7 +4,11 @@
 
 import { uploadState, uiState } from './modules/state.js';
 import { showNotification } from './modules/notifications.js';
-import { processImageWithAPI } from './modules/api.js';
+import {
+    initImageProcessing,
+    markCurrentStateApplied,
+    processImageWithAPI
+} from './modules/api.js';
 import { initUpload } from './modules/upload.js';
 import { initFilters, syncFilterUIFromState } from './modules/filters.js';
 import {
@@ -15,6 +19,7 @@ import {
 import { setCropMode, updateCropOverlayVisibility } from './modules/crop.js';
 import { initHistory, updateUndoRedoUI } from './modules/history.js';
 import { initCompareAndDownload } from './modules/compare-download.js';
+import { initAccount } from './modules/account.js';
 
 function initTabs() {
     const btnTabFilters = document.getElementById('btn-tab-filters');
@@ -69,15 +74,23 @@ function initApplyChangesButton() {
     });
 }
 
+function syncEditorUI() {
+    setCropMode(false);
+    syncFilterUIFromState();
+    syncTransformUIFromState();
+    updateUndoRedoUI();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
 
+    // Xử lý thất bại → trạng thái đã được khôi phục, đồng bộ lại giao diện
+    initImageProcessing({ onStateReverted: syncEditorUI });
+
     initUpload({
         onNewImageLoaded: () => {
-            syncFilterUIFromState();
-            syncTransformUIFromState();
-            updateUndoRedoUI();
-            setCropMode(false);
+            markCurrentStateApplied();
+            syncEditorUI();
         }
     });
 
@@ -86,9 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initHistory({
         onStateRestored: () => {
-            setCropMode(false);
-            syncFilterUIFromState();
-            syncTransformUIFromState();
+            syncEditorUI();
             if (uploadState.file) {
                 processImageWithAPI();
             }
@@ -97,4 +108,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCompareAndDownload();
     initApplyChangesButton();
+    initAccount();
 });

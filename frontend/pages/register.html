@@ -9,7 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center relative overflow-x-hidden">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center relative overflow-x-hidden px-4 py-8">
     <!-- Background Decor -->
     <div
         class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob">
@@ -25,54 +25,74 @@
             <p class="text-gray-400 mt-2">Bắt đầu hành trình sáng tạo của bạn</p>
         </div>
 
-        <form class="space-y-5">
+        <form id="register-form" class="space-y-5" novalidate>
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Tên hiển thị</label>
+                <label for="register-name" class="block text-sm font-medium text-gray-300 mb-2">Tên hiển thị</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-user text-gray-400"></i>
                     </div>
-                    <input type="text"
+                    <input id="register-name" name="display_name" type="text" autocomplete="nickname" required minlength="2" maxlength="50"
                         class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
                         placeholder="Tên của bạn">
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                <label for="register-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-envelope text-gray-400"></i>
                     </div>
-                    <input type="email"
+                    <input id="register-email" name="email" type="email" autocomplete="email" required maxlength="254"
                         class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
                         placeholder="your@email.com">
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Mật khẩu</label>
+                <label for="register-password" class="block text-sm font-medium text-gray-300 mb-2">Mật khẩu</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-lock text-gray-400"></i>
                     </div>
-                    <input type="password"
+                    <input id="register-password" name="password" type="password" autocomplete="new-password" required minlength="6" maxlength="128"
                         class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
-                        placeholder="••••••••">
+                        placeholder="Tối thiểu 6 ký tự">
                 </div>
             </div>
 
-            <button type="button"
+            <div>
+                <label for="register-confirm" class="block text-sm font-medium text-gray-300 mb-2">Xác nhận mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-check-double text-gray-400"></i>
+                    </div>
+                    <input id="register-confirm" type="password" autocomplete="new-password" required maxlength="128"
+                        class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
+                        placeholder="Nhập lại mật khẩu">
+                </div>
+            </div>
+
+            <p id="register-message" class="hidden text-sm text-red-400" role="alert"></p>
+
+            <button id="btn-register" type="submit"
                 class="w-full py-3 mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-white shadow-lg transform hover:-translate-y-0.5 transition-all focus:ring-4 focus:ring-purple-500/50">
                 Đăng Ký
             </button>
         </form>
 
         <div class="mt-8 text-center">
-            <p class="text-gray-400">Đã có tài khoản? <a href="login.html"
+            <p class="text-gray-400">Đã có tài khoản? <a id="link-login" href="login.html"
                     class="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Đăng nhập</a></p>
         </div>
+
+        <div class="mt-6 text-center">
+            <a href="../index.html" class="text-sm text-gray-500 hover:text-gray-300 transition-colors"><i class="fas fa-arrow-left mr-2"></i>Quay lại Editor (Khách)</a>
+        </div>
     </div>
+
+    <script type="module" src="../assets/js/pages/register.js"></script>
 </body>
 
 </html>
