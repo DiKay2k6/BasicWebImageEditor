@@ -6,7 +6,7 @@ from typing import Any, Dict
 import numpy as np
 from flask import request
 
-from image_io import ImageProcessingError, validate_and_decode_image
+from utils.image_io import ImageProcessingError, validate_and_decode_image
 
 
 @dataclass(frozen=True)

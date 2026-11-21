@@ -6,7 +6,7 @@ from typing import Optional
 
 from flask import current_app
 
-from errors import ApiError
+from utils.errors import ApiError
 
 
 def _storage_root() -> str:

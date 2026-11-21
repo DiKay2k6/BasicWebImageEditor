@@ -2,13 +2,32 @@
 // EDITOR ACCOUNT - menu tài khoản trên header & lưu ảnh vào lịch sử chỉnh sửa
 // ==========================================
 
-import { ApiError, apiRequest, fetchBlob, getCurrentUser, getInitials } from './auth-client.js';
-import { buildProcessFormData } from './api.js';
-import { showNotification } from './notifications.js';
+import { ApiError, apiRequest, fetchBlob, getCurrentUser, getInitials } from '../services/auth-client.js';
+import { buildProcessFormData } from '../services/api.js';
+import { showNotification } from '../utils/notifications.js';
 import { uiState, uploadState } from './state.js';
 
 let currentUser = null;
 let avatarObjectUrl = '';
+let savedHistoryId = null;
+
+function updateSaveButtonUI() {
+    const btnSave = document.getElementById('btn-save-history');
+    if (!btnSave) return;
+
+    if (savedHistoryId) {
+        btnSave.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> Cập nhật';
+        btnSave.title = 'Cập nhật thay đổi mới nhất vào ảnh vừa lưu trong lịch sử';
+    } else {
+        btnSave.innerHTML = '<i class="fas fa-cloud-upload-alt mr-2"></i> Lưu';
+        btnSave.title = 'Lưu ảnh đã chỉnh sửa vào lịch sử (cần đăng nhập)';
+    }
+}
+
+export function resetSavedHistory() {
+    savedHistoryId = null;
+    updateSaveButtonUI();
+}
 
 async function renderAccountMenu(user) {
     const link = document.getElementById('header-account');
@@ -21,6 +40,7 @@ async function renderAccountMenu(user) {
     avatarObjectUrl = '';
 
     if (!user) {
+        resetSavedHistory();
         link.href = 'pages/login.html';
         link.title = 'Đăng nhập để lưu lịch sử chỉnh sửa';
         nameLabel.textContent = 'Đăng nhập';
@@ -64,7 +84,34 @@ async function saveToHistory(button) {
     button.disabled = true;
     button.classList.add('opacity-60', 'cursor-not-allowed');
     try {
-        const data = await apiRequest('/api/history', { method: 'POST', formData: buildProcessFormData() });
+        let data;
+        if (savedHistoryId) {
+            try {
+                data = await apiRequest(`/api/history/${savedHistoryId}`, {
+                    method: 'PUT',
+                    formData: buildProcessFormData()
+                });
+            } catch (err) {
+                // Bản ghi đã bị xóa ở tab khác → tạo lại bản ghi mới thay vì báo lỗi
+                if (err instanceof ApiError && err.status === 404) {
+                    savedHistoryId = null;
+                    data = await apiRequest('/api/history', {
+                        method: 'POST',
+                        formData: buildProcessFormData()
+                    });
+                } else {
+                    throw err;
+                }
+            }
+        } else {
+            data = await apiRequest('/api/history', {
+                method: 'POST',
+                formData: buildProcessFormData()
+            });
+        }
+
+        savedHistoryId = data.item?.id || savedHistoryId;
+        updateSaveButtonUI();
         showNotification(data.message, 'success');
     } catch (err) {
         if (err instanceof ApiError && err.status === 401) {

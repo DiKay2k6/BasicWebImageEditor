@@ -4,17 +4,17 @@ import os
 from typing import Tuple
 
 from flask import Blueprint, Response, g, jsonify, request, send_file
-from pymongo import DESCENDING
+from pymongo import DESCENDING, ReturnDocument
 
-from database import get_db
-from errors import ApiError
-from image_io import encode_image
-from image_service import describe_pipeline_edits, process_image_operation_with_metadata
-from request_utils import read_processing_params, read_uploaded_image
-from security import login_required, utcnow
-from serializers import serialize_history_item
-from storage import delete_file, resolve_file, save_file
-from validators import parse_object_id, parse_positive_int
+from services.database import get_db
+from services.image_service import describe_pipeline_edits, process_image_operation_with_metadata
+from services.security import login_required, utcnow
+from services.storage import delete_file, resolve_file, save_file
+from utils.errors import ApiError
+from utils.image_io import encode_image
+from utils.request_utils import read_processing_params, read_uploaded_image
+from utils.serializers import serialize_history_item
+from utils.validators import parse_object_id, parse_positive_int
 
 history_bp = Blueprint("history", __name__, url_prefix="/api/history")
 
@@ -59,10 +59,8 @@ def list_history() -> Tuple[Response, int]:
     )
 
 
-@history_bp.post("")
-@login_required
-def save_history() -> Tuple[Response, int]:
-    """Nhận ảnh gốc + tham số chỉnh sửa, xử lý lại bằng OpenCV rồi lưu kết quả.
+def _process_and_store_edit() -> dict:
+    """Đọc ảnh + tham số chỉnh sửa, xử lý lại bằng OpenCV, lưu file lên ổ đĩa và trả về metadata.
 
     Xử lý phía server đảm bảo ảnh lưu trữ và metadata (kích thước, số khuôn mặt)
     luôn khớp với các tham số đã ghi nhận.
@@ -77,8 +75,7 @@ def save_history() -> Tuple[Response, int]:
 
     original_h, original_w = uploaded.image.shape[:2]
     out_h, out_w = result.shape[:2]
-    item = {
-        "user_id": g.user["_id"],
+    return {
         "original_filename": os.path.basename(uploaded.filename)[:MAX_FILENAME_LENGTH],
         "image_path": image_path,
         "mime_type": mime_type,
@@ -89,17 +86,57 @@ def save_history() -> Tuple[Response, int]:
         "file_size": len(encoded),
         "faces_detected": metadata.get("faces_detected", 0),
         "edits": describe_pipeline_edits(params),
-        "created_at": utcnow(),
     }
+
+
+@history_bp.post("")
+@login_required
+def save_history() -> Tuple[Response, int]:
+    """Lưu ảnh đã chỉnh sửa thành một bản ghi mới trong lịch sử."""
+    fields = _process_and_store_edit()
+    item = {"user_id": g.user["_id"], **fields, "created_at": utcnow()}
     try:
         item["_id"] = get_db().edit_history.insert_one(item).inserted_id
     except Exception:
-        delete_file(image_path)  # Không để lại file mồ côi khi ghi DB thất bại
+        delete_file(fields["image_path"])  # Không để lại file mồ côi khi ghi DB thất bại
         raise
 
     return (
         jsonify({"item": serialize_history_item(item), "message": "Đã lưu vào lịch sử chỉnh sửa."}),
         201,
+    )
+
+
+@history_bp.put("/<item_id>")
+@login_required
+def update_history(item_id: str) -> Tuple[Response, int]:
+    """Cập nhật ảnh và metadata mới nhất vào một bản ghi lịch sử đã lưu trước đó."""
+    existing = _find_owned_item(item_id)
+    fields = _process_and_store_edit()
+    fields["created_at"] = utcnow()
+    try:
+        updated = get_db().edit_history.find_one_and_update(
+            {"_id": existing["_id"], "user_id": g.user["_id"]},
+            {"$set": fields},
+            return_document=ReturnDocument.AFTER,
+        )
+    except Exception:
+        delete_file(fields["image_path"])  # Không để lại file mồ côi khi ghi DB thất bại
+        raise
+
+    if updated is None:
+        delete_file(fields["image_path"])
+        raise ApiError("Không tìm thấy bản ghi lịch sử chỉnh sửa.", 404)
+
+    delete_file(existing["image_path"])
+    return (
+        jsonify(
+            {
+                "item": serialize_history_item(updated),
+                "message": "Đã cập nhật thay đổi mới nhất vào lịch sử.",
+            }
+        ),
+        200,
     )
 
 

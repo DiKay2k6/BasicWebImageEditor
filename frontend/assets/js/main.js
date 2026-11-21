@@ -2,24 +2,22 @@
 // WEB IMAGE EDITOR - MAIN ENTRY POINT
 // ==========================================
 
-import { uploadState, uiState } from './modules/state.js';
-import { showNotification } from './modules/notifications.js';
+import { uploadState, uiState } from './editor/state.js';
 import {
     initImageProcessing,
     markCurrentStateApplied,
     processImageWithAPI
-} from './modules/api.js';
-import { initUpload } from './modules/upload.js';
-import { initFilters, syncFilterUIFromState } from './modules/filters.js';
+} from './services/api.js';
+import { initUpload } from './editor/upload.js';
+import { initFilters, syncFilterUIFromState } from './editor/filters.js';
 import {
     initTransforms,
-    syncTransformUIFromState,
-    commitActiveCropToOps
-} from './modules/transforms.js';
-import { setCropMode, updateCropOverlayVisibility } from './modules/crop.js';
-import { initHistory, updateUndoRedoUI } from './modules/history.js';
-import { initCompareAndDownload } from './modules/compare-download.js';
-import { initAccount } from './modules/account.js';
+    syncTransformUIFromState
+} from './editor/transforms.js';
+import { setCropMode, updateCropOverlayVisibility } from './editor/crop.js';
+import { initHistory, updateUndoRedoUI } from './editor/history.js';
+import { initCompareAndDownload } from './editor/compare-download.js';
+import { initAccount, resetSavedHistory } from './editor/account.js';
 
 function initTabs() {
     const btnTabFilters = document.getElementById('btn-tab-filters');
@@ -58,22 +56,6 @@ function initTabs() {
     });
 }
 
-function initApplyChangesButton() {
-    const btnApplyChanges = document.getElementById('btn-apply-changes');
-    if (!btnApplyChanges) return;
-
-    btnApplyChanges.addEventListener('click', () => {
-        if (!uploadState.file) {
-            showNotification('Vui lòng tải ảnh lên trước khi áp dụng chỉnh sửa!', 'warning');
-            return;
-        }
-        if (uiState.activeTab === 'transform') {
-            commitActiveCropToOps();
-        }
-        processImageWithAPI();
-    });
-}
-
 function syncEditorUI() {
     setCropMode(false);
     syncFilterUIFromState();
@@ -89,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initUpload({
         onNewImageLoaded: () => {
+            resetSavedHistory();
             markCurrentStateApplied();
             syncEditorUI();
         }
@@ -107,6 +90,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initCompareAndDownload();
-    initApplyChangesButton();
     initAccount();
 });

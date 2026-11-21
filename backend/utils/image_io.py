@@ -3,7 +3,7 @@ from typing import Tuple
 import cv2
 import numpy as np
 
-from errors import ApiError
+from utils.errors import ApiError
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/jpg"}

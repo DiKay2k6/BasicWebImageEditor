@@ -5,14 +5,14 @@ from typing import Tuple
 
 from flask import Blueprint, Response, jsonify, send_file
 
-from image_io import ALLOWED_EXTENSIONS, ImageProcessingError, encode_image
-from image_service import (
+from services.image_service import (
     SUPPORTED_OPERATIONS,
     UNIMPLEMENTED_OPERATIONS,
     process_image_operation_with_metadata,
 )
-from processing import detect_faces
-from request_utils import read_processing_params, read_uploaded_image
+from services.processing import detect_faces
+from utils.image_io import ALLOWED_EXTENSIONS, ImageProcessingError, encode_image
+from utils.request_utils import read_processing_params, read_uploaded_image
 
 image_bp = Blueprint("image", __name__, url_prefix="/api")
 

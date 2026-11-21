@@ -1,9 +1,38 @@
+# AI / Kế hoạch nội bộ
 .agent/
 plans/
+
+# Hệ điều hành (macOS / Windows)
 .DS_Store
 __MACOSX/
+Thumbs.db
+
+# Môi trường & cache Python
 .venv/
+venv/
+env/
 __pycache__/
-# Thư mục lưu file ảnh người dùng (ảnh đại diện, ảnh đã chỉnh sửa)
-backend/storage/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Thư viện Node.js (Tailwind CSS)
+# node_modules/
+npm-debug.log*
+
+# Biến môi trường & cấu hình nhạy cảm
 .env
+.env.*
+!.env.example
+
+# Cấu hình IDE / Editor
+.vscode/
+.idea/
+
+# Thư mục lưu file ảnh người dùng (ảnh đại diện, ảnh đã chỉnh sửa)
+# backend/storage/
+
+# File log
+*.log

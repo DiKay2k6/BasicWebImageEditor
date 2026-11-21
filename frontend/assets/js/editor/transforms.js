@@ -9,8 +9,8 @@ import {
     cropBoxNorm,
     toggleFilterButton
 } from './state.js';
-import { showNotification } from './notifications.js';
-import { processImageWithAPI } from './api.js';
+import { showNotification } from '../utils/notifications.js';
+import { processImageWithAPI } from '../services/api.js';
 import { saveState } from './history.js';
 import {
     initCrop,

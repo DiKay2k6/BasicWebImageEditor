@@ -3,16 +3,7 @@ from typing import Any, Dict, Tuple
 
 import numpy as np
 
-from image_io import (
-    ALLOWED_EXTENSIONS,
-    ALLOWED_MIME_TYPES,
-    JPEG_MAGIC,
-    PNG_MAGIC,
-    ImageProcessingError,
-    encode_image,
-    validate_and_decode_image,
-)
-from processing import (
+from services.processing import (
     adjust_brightness,
     adjust_contrast,
     apply_blur,
@@ -26,6 +17,15 @@ from processing import (
     flip_image,
     resize_image,
     rotate_image,
+)
+from utils.image_io import (
+    ALLOWED_EXTENSIONS,
+    ALLOWED_MIME_TYPES,
+    JPEG_MAGIC,
+    PNG_MAGIC,
+    ImageProcessingError,
+    encode_image,
+    validate_and_decode_image,
 )
 
 SUPPORTED_OPERATIONS = {

@@ -150,7 +150,7 @@ def crop_image(
 
 
 # 3. FACE DETECTION & BLURRING (Nhận diện và làm mờ khuôn mặt)
-_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _YUNET_MODEL_PATH = os.path.join(
     _CURRENT_DIR, "models", "face_detection_yunet_2023mar.onnx"
 )

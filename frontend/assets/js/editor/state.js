@@ -2,7 +2,7 @@
 // CENTRALIZED APPLICATION STATE
 // ==========================================
 
-export { API_BASE_URL } from './config.js';
+export { API_BASE_URL } from '../utils/config.js';
 
 export const uploadState = {
     file: null,

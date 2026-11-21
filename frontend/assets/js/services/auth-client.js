@@ -2,7 +2,7 @@
 // AUTH CLIENT - token đăng nhập & gọi API có xác thực
 // ==========================================
 
-import { API_BASE_URL } from './config.js';
+import { API_BASE_URL } from '../utils/config.js';
 
 const TOKEN_STORAGE_KEY = 'wie_auth_token';
 const NETWORK_ERROR_MESSAGE = 'Không thể kết nối tới máy chủ Flask. Vui lòng kiểm tra Backend đã chạy chưa.';

@@ -2,9 +2,9 @@
 // LOGIN PAGE
 // ==========================================
 
-import { getCurrentUser, login } from '../modules/auth-client.js';
-import { getRedirectTarget, setButtonLoading, setFormMessage, withNextParam } from '../modules/form-utils.js';
-import { showNotification } from '../modules/notifications.js';
+import { getCurrentUser, login } from '../services/auth-client.js';
+import { getRedirectTarget, setButtonLoading, setFormMessage, withNextParam } from '../utils/form-utils.js';
+import { showNotification } from '../utils/notifications.js';
 
 const form = document.getElementById('login-form');
 const emailInput = document.getElementById('login-email');

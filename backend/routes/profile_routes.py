@@ -5,15 +5,15 @@ from typing import Tuple
 from flask import Blueprint, Response, current_app, g, jsonify, send_file
 from pymongo import ReturnDocument
 
-from database import get_db
-from errors import ApiError
-from image_io import encode_image
-from image_service import create_avatar_image
-from request_utils import read_uploaded_image
-from security import hash_password, login_required, revoke_other_sessions, utcnow, verify_password
-from serializers import serialize_user
-from storage import delete_file, resolve_file, save_file
-from validators import get_json_body, validate_bio, validate_display_name, validate_password
+from services.database import get_db
+from services.image_service import create_avatar_image
+from services.security import hash_password, login_required, revoke_other_sessions, utcnow, verify_password
+from services.storage import delete_file, resolve_file, save_file
+from utils.errors import ApiError
+from utils.image_io import encode_image
+from utils.request_utils import read_uploaded_image
+from utils.serializers import serialize_user
+from utils.validators import get_json_body, validate_bio, validate_display_name, validate_password
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/api/profile")
 

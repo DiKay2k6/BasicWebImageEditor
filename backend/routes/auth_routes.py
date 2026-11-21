@@ -5,9 +5,8 @@ from typing import Tuple
 from flask import Blueprint, Response, g, jsonify
 from pymongo.errors import DuplicateKeyError
 
-from database import get_db
-from errors import ApiError
-from security import (
+from services.database import get_db
+from services.security import (
     create_session,
     hash_password,
     login_required,
@@ -15,8 +14,9 @@ from security import (
     utcnow,
     verify_password,
 )
-from serializers import serialize_user
-from validators import get_json_body, validate_display_name, validate_email, validate_password
+from utils.errors import ApiError
+from utils.serializers import serialize_user
+from utils.validators import get_json_body, validate_display_name, validate_email, validate_password
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 

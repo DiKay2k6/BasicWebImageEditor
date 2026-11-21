@@ -10,8 +10,8 @@ from bson import ObjectId
 from flask import current_app, g, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import get_db
-from errors import ApiError
+from services.database import get_db
+from utils.errors import ApiError
 
 
 def utcnow() -> datetime:

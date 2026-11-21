@@ -6,8 +6,8 @@ import {
     uploadState,
     resetStatesForNewImage
 } from './state.js';
-import { showNotification } from './notifications.js';
-import { validateImageFile } from './config.js';
+import { showNotification } from '../utils/notifications.js';
+import { validateImageFile } from '../utils/config.js';
 
 export function initUpload({ onNewImageLoaded }) {
     const dropzone = document.getElementById('upload-dropzone');

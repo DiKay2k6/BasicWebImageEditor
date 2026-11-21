@@ -6,9 +6,9 @@ import {
     uploadState,
     uiState
 } from './state.js';
-import { showNotification } from './notifications.js';
+import { showNotification } from '../utils/notifications.js';
 import { updateCropOverlayVisibility } from './crop.js';
-import { buildEditedFileName, triggerDownload } from './file-utils.js';
+import { buildEditedFileName, triggerDownload } from '../utils/file-utils.js';
 
 function getOriginalBadge(previewContainer) {
     let badge = document.getElementById('original-badge');

@@ -2,7 +2,7 @@
 // EDIT HISTORY VIEW - hiển thị danh sách lịch sử chỉnh sửa (trang Profile)
 // ==========================================
 
-import { fetchBlob } from './auth-client.js';
+import { fetchBlob } from '../services/auth-client.js';
 
 const objectUrlsByContainer = new WeakMap();
 

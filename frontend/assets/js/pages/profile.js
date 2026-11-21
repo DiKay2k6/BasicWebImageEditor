@@ -2,12 +2,12 @@
 // PROFILE PAGE - hồ sơ, ảnh đại diện, lịch sử chỉnh sửa, đổi mật khẩu
 // ==========================================
 
-import { apiRequest, fetchBlob, getCurrentUser, getInitials, logout } from '../modules/auth-client.js';
-import { validateImageFile } from '../modules/config.js';
-import { renderHistoryList, renderHistoryMessage } from '../modules/edit-history-view.js';
-import { buildEditedFileName, downloadBlob } from '../modules/file-utils.js';
-import { setButtonLoading, setFormMessage } from '../modules/form-utils.js';
-import { showNotification } from '../modules/notifications.js';
+import { apiRequest, fetchBlob, getCurrentUser, getInitials, logout } from '../services/auth-client.js';
+import { validateImageFile } from '../utils/config.js';
+import { renderHistoryList, renderHistoryMessage } from '../utils/edit-history-view.js';
+import { buildEditedFileName, downloadBlob } from '../utils/file-utils.js';
+import { setButtonLoading, setFormMessage } from '../utils/form-utils.js';
+import { showNotification } from '../utils/notifications.js';
 
 const TABS = ['profile', 'history', 'settings'];
 const HISTORY_PAGE_SIZE = 6;

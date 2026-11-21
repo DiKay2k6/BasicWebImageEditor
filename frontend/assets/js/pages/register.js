@@ -2,9 +2,9 @@
 // REGISTER PAGE
 // ==========================================
 
-import { getCurrentUser, register } from '../modules/auth-client.js';
-import { getRedirectTarget, setButtonLoading, setFormMessage, withNextParam } from '../modules/form-utils.js';
-import { showNotification } from '../modules/notifications.js';
+import { getCurrentUser, register } from '../services/auth-client.js';
+import { getRedirectTarget, setButtonLoading, setFormMessage, withNextParam } from '../utils/form-utils.js';
+import { showNotification } from '../utils/notifications.js';
 
 const PASSWORD_MIN_LENGTH = 6;
 const NAME_MIN_LENGTH = 2;

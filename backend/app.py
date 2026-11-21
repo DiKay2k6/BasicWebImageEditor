@@ -5,12 +5,12 @@ from flask import Flask, Response, jsonify, send_from_directory
 from pymongo.errors import PyMongoError
 from werkzeug.exceptions import HTTPException
 
-from auth_routes import auth_bp
 from config import FRONTEND_DIR, load_config
-from errors import ApiError
-from history_routes import history_bp
-from image_routes import image_bp
-from profile_routes import profile_bp
+from routes.auth_routes import auth_bp
+from routes.history_routes import history_bp
+from routes.image_routes import image_bp
+from routes.profile_routes import profile_bp
+from utils.errors import ApiError
 
 DB_UNAVAILABLE_MESSAGE = (
     "Không thể kết nối cơ sở dữ liệu MongoDB. Vui lòng kiểm tra dịch vụ MongoDB đã chạy chưa."

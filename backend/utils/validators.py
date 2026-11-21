@@ -7,7 +7,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from flask import request
 
-from errors import ApiError
+from utils.errors import ApiError
 
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 EMAIL_MAX_LENGTH = 254

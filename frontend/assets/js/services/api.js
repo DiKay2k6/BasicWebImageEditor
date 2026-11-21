@@ -14,8 +14,8 @@ import {
     setCurrentDimensions,
     replaceEditorState,
     serializeEditorState
-} from './state.js';
-import { showNotification } from './notifications.js';
+} from '../editor/state.js';
+import { showNotification } from '../utils/notifications.js';
 
 let hasPendingRequest = false;
 let onStateReverted = null;
@@ -118,14 +118,9 @@ export function buildProcessFormData() {
 export function setLoadingState(loading) {
     uiState.isProcessing = loading;
     const imagePreview = document.getElementById('image-preview');
-    const btnApplyChanges = document.getElementById('btn-apply-changes');
 
     if (imagePreview) {
         imagePreview.style.opacity = loading ? '0.6' : '1';
-    }
-    if (btnApplyChanges) {
-        btnApplyChanges.disabled = loading;
-        btnApplyChanges.textContent = loading ? 'Đang xử lý OpenCV...' : 'Áp dụng thay đổi';
     }
 }
 
